@@ -1,6 +1,6 @@
 # AsyncAPI validation
 
-Message validation package for AsyncAPI documents.
+Message validation package for YAML and JSON AsyncAPI documents.
 
 This package is compatible with AsyncAPI documents v2.x.x and v3.0.0.
 
