@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "AsyncAPI message validation",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/Elhebert/asyncapi-validation.git"
