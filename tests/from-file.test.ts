@@ -54,6 +54,16 @@ describe('parsing `fromFile`', () => {
     );
   });
 
+  it('throw an error if the schema is not an AsyncAPI schema', async () => {
+    const validator = asyncApiValidation.fromFile(
+      path.join(__dirname, './from-url.test.ts')
+    );
+
+    await expect(validator).rejects.toThrow(
+      'Your schema is not an AsyncAPI schema.'
+    );
+  });
+
   it('throw an error if the schema does not exist', async () => {
     const filePath = path.join(
       __dirname,

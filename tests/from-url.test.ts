@@ -25,7 +25,27 @@ describe('parsing `fromUrl`', () => {
     );
   });
 
-  it('throws an error if the URL is not returning a valid schema', async () => {
+  it('throw an error if the YAML schema is not valid', async () => {
+    const validator = asyncApiValidation.fromUrl(
+      'https://raw.githubusercontent.com/Elhebert/asyncapi-validation/main/tests/fixtures/invalid-schema-3.0.0.yaml'
+    );
+
+    await expect(validator).rejects.toThrow(
+      'Your schema and/or referenced documents have governance issues.'
+    );
+  });
+
+  it('throw an error if the JSON schema is not valid', async () => {
+    const validator = asyncApiValidation.fromUrl(
+      'https://raw.githubusercontent.com/Elhebert/asyncapi-validation/main/tests/fixtures/invalid-schema-3.0.0.json'
+    );
+
+    await expect(validator).rejects.toThrow(
+      'Your schema and/or referenced documents have governance issues.'
+    );
+  });
+
+  it('throws an error if the URL is not returning an Async API schema', async () => {
     const validator = asyncApiValidation.fromUrl('https://example.org');
 
     await expect(validator).rejects.toThrow(
