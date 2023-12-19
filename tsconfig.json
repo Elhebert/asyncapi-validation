@@ -4,13 +4,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,
-    "declarationDir": "dist/types",
+    "declarationDir": "dist/types"
   },
-  "include": [
-    "src/"
-  ],
-  "exclude": [
-    "**/tests/",
-    "**/*.test.ts"
-  ]
+  "include": ["src/"],
+  "exclude": ["**/tests/", "**/*.test.ts"]
 }

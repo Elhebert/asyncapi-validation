@@ -22,12 +22,15 @@ pnpm install asyncapi-validation
 ```ts
 import asyncAPIValidation from 'asyncapi-validation';
 
-const validator = await asyncAPIValidation.fromUrl('https://example.org/schema.yaml');
+const validator = await asyncAPIValidation.fromUrl(
+  'https://example.org/schema.yaml'
+);
 validator('messageName', { foo: 'bar' });
 validator('messageId', { foo: 'bar' });
 ```
 
 # Using a local schema
+
 ```ts
 const validator = await asyncAPIValidation.fromUrl('./schema.yaml');
 validator('messageName', { foo: 'bar' });
@@ -35,6 +38,7 @@ validator('messageId', { foo: 'bar' });
 ```
 
 # Using an in-line schema
+
 ```ts
 const validator = await asyncAPIValidation.fromSchema(`asyncapi: 3.0.0
 info:
@@ -67,7 +71,7 @@ components:
             type: string
             format: email
             description: Email of the user
-`)
+`);
 validator('messageName', { foo: 'bar' });
 validator('messageId', { foo: 'bar' });
 ```
