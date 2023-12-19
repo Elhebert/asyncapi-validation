@@ -18,10 +18,11 @@
     "prepare": "husky install",
     "preinstall": "npx only-allow pnpm",
     "test": "jest",
-    "lint": "prettier --check .",
-    "lint:fix": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "check:types": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "commitlint": "commitlint --edit"
   },
   "keywords": [
     "asyncapi",
@@ -45,9 +46,22 @@
     "ajv-formats": "^2.1.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "@tsconfig/node20": "^20.1.2",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-check-file": "^2.6.2",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "husky": "^8.0.3",
     "jest": "^29.7.0",
     "lint-staged": "^15.2.0",

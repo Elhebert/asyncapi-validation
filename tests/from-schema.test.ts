@@ -1,6 +1,6 @@
 import path from 'node:path';
-import asyncApiValidation from '../src/index';
 import { readFile } from 'node:fs/promises';
+import asyncApiValidation from '../src/index';
 
 describe('parsing `fromSchema`', () => {
   it('parse a valid 3.0.0 YAML schema', async () => {
