@@ -1,5 +1,8 @@
 # AsyncAPI validation
 
+[![Unit tests](https://github.com/Elhebert/asyncapi-validation/actions/workflows/unit-test.yml/badge.svg)](https://github.com/Elhebert/asyncapi-validation/actions/workflows/unit-test.yml)
+[![codecov](https://codecov.io/gh/Elhebert/asyncapi-validation/graph/badge.svg?token=7QFPVL5DKN)](https://codecov.io/gh/Elhebert/asyncapi-validation)
+
 Message validation package for YAML and JSON AsyncAPI documents.
 
 This package is compatible with AsyncAPI documents v2.x.x and v3.0.0.
