@@ -1,0 +1,12 @@
+{
+  "title": "AsyncAPI Validation",
+  "description": "Message validation package for YAML and JSON AsyncAPI documents.",
+  "links": {
+    "repoUrl": "https://github.com/Elhebert/asyncapi-validation"
+  },
+  "filters": {
+    "language": "TypeScript",
+    "technology": ["Node.js"],
+    "categories": ["validator"]
+  }
+}

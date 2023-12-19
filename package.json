@@ -1,7 +1,7 @@
 {
   "name": "asyncapi-validation",
   "version": "0.1.1",
-  "description": "AsyncAPI message validation",
+  "description": "Message validation package for YAML and JSON AsyncAPI documents.",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "files": [
