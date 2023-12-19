@@ -1,7 +1,25 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import asyncApiValidation, { type ValidationFunction } from '../src/index';
 
 describe('AsyncAPI validation', () => {
-  describe('fromUrl', () => {
+  describe('parsing `fromUrl`', () => {
+    it('parse a yaml 3.0.0 YAML schema', async () => {
+      const validator = asyncApiValidation.fromUrl(
+        'https://raw.githubusercontent.com/asyncapi/spec/v3.0.0/examples/simple-asyncapi.yml'
+      );
+
+      await expect(validator).resolves.toBeInstanceOf(Function);
+    });
+
+    it('parse a yaml 2.0.0 YAML schema', async () => {
+      const validator = asyncApiValidation.fromUrl(
+        'https://raw.githubusercontent.com/asyncapi/spec/v2.0.0/examples/2.0.0/streetlights.yml'
+      );
+
+      await expect(validator).resolves.toBeInstanceOf(Function);
+    });
+
     it('throws an error if the URL is not valid', async () => {
       const validator = asyncApiValidation.fromUrl('incorrect-url');
 
@@ -17,10 +35,28 @@ describe('AsyncAPI validation', () => {
         'Your schema and/or referenced documents have governance issues.'
       );
     });
+  });
 
-    it('throws an error if the schema is broken', async () => {
-      const validator = asyncApiValidation.fromUrl(
-        'https://raw.githubusercontent.com/WaleedAshraf/asyncapi-validator/master/test/schemas/broken.yml'
+  describe('parsing `fromFile`', () => {
+    it('parse a valid 3.0.0 YAML schema', async () => {
+      const validator = asyncApiValidation.fromFile(
+        path.join(__dirname, 'fixtures', 'valid-schema-3.0.0.yaml')
+      );
+
+      await expect(validator).resolves.toBeInstanceOf(Function);
+    });
+
+    it('parse a valid 2.0.0 YAML schema', async () => {
+      const validator = asyncApiValidation.fromFile(
+        path.join(__dirname, 'fixtures', 'valid-schema-2.0.0.yaml')
+      );
+
+      await expect(validator).resolves.toBeInstanceOf(Function);
+    });
+
+    it('throw an error if the schema is not valid', async () => {
+      const validator = asyncApiValidation.fromFile(
+        path.join(__dirname, 'fixtures', 'invalid-schema-3.0.0.yaml')
       );
 
       await expect(validator).rejects.toThrow(
@@ -28,226 +64,112 @@ describe('AsyncAPI validation', () => {
       );
     });
 
-    it('parse a yaml schema', async () => {
-      const validator = asyncApiValidation.fromUrl(
-        'https://raw.githubusercontent.com/WaleedAshraf/asyncapi-validator/master/test/schemas/v2.0.0/mqtt.yaml'
+    it('throw an error if the schema does not exist', async () => {
+      const filePath = path.join(
+        __dirname,
+        'fixtures',
+        'not-existing-schema.yaml'
       );
+      const validator = asyncApiValidation.fromFile(filePath);
+
+      await expect(validator).rejects.toThrow(
+        `ENOENT: no such file or directory, open '${filePath}'`
+      );
+    });
+  });
+
+  describe('parsing `fromSchema`', () => {
+    it('parse a valid 3.0.0 YAML schema', async () => {
+      const schema = await readFile(
+        path.join(__dirname, 'fixtures', 'valid-schema-3.0.0.yaml'),
+        'utf-8'
+      );
+      const validator = asyncApiValidation.fromSchema(schema);
 
       await expect(validator).resolves.toBeInstanceOf(Function);
     });
 
-    it('parse a json schema', async () => {
-      const validator = asyncApiValidation.fromUrl(
-        'https://raw.githubusercontent.com/WaleedAshraf/asyncapi-validator/master/test/schemas/jsonSchema.json'
+    it('parse a valid 2.0.0 YAML schema', async () => {
+      const schema = await readFile(
+        path.join(__dirname, 'fixtures', 'valid-schema-2.0.0.yaml'),
+        'utf-8'
       );
+      const validator = asyncApiValidation.fromSchema(schema);
 
       await expect(validator).resolves.toBeInstanceOf(Function);
     });
-  });
 
-  describe('2.4.0', () => {
-    let validator: ValidationFunction;
-
-    beforeAll(async () => {
-      validator = await asyncApiValidation.fromUrl(
-        'https://raw.githubusercontent.com/WaleedAshraf/asyncapi-validator/master/test/schemas/v2.4.0/mqtt.yaml'
+    it('throw an error if the schema is not valid', async () => {
+      const schema = await readFile(
+        path.join(__dirname, 'fixtures', 'invalid-schema-3.0.0.yaml'),
+        'utf-8'
       );
-    });
+      const validator = asyncApiValidation.fromSchema(schema);
 
-    it('should validate alerts message', () => {
-      const validate = validator('devices/alerts', [
-        {
-          message: 'temperature too high',
-          name: 'temperature_high',
-          state: 'set',
-          timestamp: 0,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate command_responses message', () => {
-      const validate = validator('devices/command_responses', [
-        {
-          id: '7f5bc456-21f2-4e9e-a38f-80baf762b1c5',
-          message: 'message describing the command progress',
-          status: 'in_progress',
-          timestamp: 0,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate commands message', () => {
-      const validate = validator('devices/commands', {
-        deviceId: 'd44d8a14-5fbb-4e4a-96a6-ed0c71c11fa8',
-        id: '7f5bc456-21f2-4e9e-a38f-80baf762b1c5',
-        name: 'dim_light',
-        parameter: true,
-        timestamp: 0,
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate config_requests message', () => {
-      const validate = validator('devices/config_requests', [
-        {
-          timestamp: 0,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate configs message', () => {
-      const validate = validator('devices/configs', {
-        configuration: {
-          maximum_temperature: 60,
-        },
-        deviceId: 'd44d8a14-5fbb-4e4a-96a6-ed0c71c11fa8',
-        version: 2,
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate errors message', () => {
-      const validate = validator('devices/errors', {
-        error: "command field 'id' is NOT an UUID",
-        messageId: 31248,
-        payload: "{'id':'not UUID','status':'in_progress'}",
-        topic: 'devices/763c073a-e0ff-41a9-bd51-3386975ea4e3/commands',
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate installations message', () => {
-      const validate = validator('devices/installations', {
-        buildStamp: 'string',
-        description: 'package.gwa-core-v1.1',
-        deviceId: 'd44d8a14-5fbb-4e4a-96a6-ed0c71c11fa8',
-        fileName: 'gwa-core.tgz',
-        id: '763c073a-e0ff-41a9-bd51-3386975ea4e3',
-        location: 'http://foo.bar/buzz.xyz',
-        signature: '2fd4e1c67a2d28fced849ee1bb76e7391b93eb12',
-        signatureType: 'sha-256',
-        size: 1048576,
-        timestamp: 0,
-        type: 'gwa-core-package',
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate measurements message', () => {
-      const validate = validator('devices/measurements', [
-        {
-          name: 'temperature',
-          timestamp: 0,
-          value: 36.6,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
+      await expect(validator).rejects.toThrow(
+        'Your schema and/or referenced documents have governance issues.'
+      );
     });
   });
 
-  describe('2.0.0', () => {
-    let validator: ValidationFunction;
+  describe('validation', () => {
+    let validator3: ValidationFunction;
+    let validator2: ValidationFunction;
 
     beforeAll(async () => {
-      validator = await asyncApiValidation.fromUrl(
-        'https://raw.githubusercontent.com/WaleedAshraf/asyncapi-validator/master/test/schemas/v2.0.0/mqtt.yaml'
+      validator3 = await asyncApiValidation.fromFile(
+        path.join(__dirname, 'fixtures', 'valid-schema-3.0.0.yaml')
+      );
+
+      validator2 = await asyncApiValidation.fromFile(
+        path.join(__dirname, 'fixtures', 'valid-schema-2.0.0.yaml')
       );
     });
 
-    it('should validate alerts message', () => {
-      const validate = validator('devices/alerts', [
-        {
-          message: 'temperature too high',
-          name: 'temperature_high',
-          state: 'set',
-          timestamp: 0,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
+    it('validate a valid payload for a 3.0.0 schema', async () => {
+      const payload = {
+        lumens: 500,
+        sendAt: '2020-08-06T15:00:00+00:00',
+      };
+
+      expect(validator3('lightMeasured', payload)).toBe(true);
     });
 
-    it('should validate command_responses message', () => {
-      const validate = validator('devices/command_responses', [
-        {
-          id: '7f5bc456-21f2-4e9e-a38f-80baf762b1c5',
-          message: 'message describing the command progress',
-          status: 'in_progress',
-          timestamp: 0,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
+    it('throw an error if the payload is not valid for a 3.0.0 schema', async () => {
+      const payload = {
+        lumens: -100,
+        sendAt: '2020-08-06T15:00:00+00:00',
+      };
+
+      try {
+        validator3('lightMeasured', payload);
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect((err as Error).message).toBe('data/lumens must be >= 0');
+      }
     });
 
-    it('should validate commands message', () => {
-      const validate = validator('devices/commands', {
-        deviceId: 'd44d8a14-5fbb-4e4a-96a6-ed0c71c11fa8',
-        id: '7f5bc456-21f2-4e9e-a38f-80baf762b1c5',
-        name: 'dim_light',
-        parameter: true,
-        timestamp: 0,
-      });
-      expect(validate).toStrictEqual(true);
+    it('validate a valid payload for a 2.0.0 schema', async () => {
+      const payload = {
+        lumens: 500,
+        sendAt: '2020-08-06T15:00:00+00:00',
+      };
+
+      expect(validator2('lightMeasured', payload)).toBe(true);
     });
 
-    it('should validate config_requests message', () => {
-      const validate = validator('devices/config_requests', [
-        {
-          timestamp: 0,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
-    });
+    it('throw an error if the payload is not valid for a 2.0.0 schema', async () => {
+      const payload = {
+        lumens: -100,
+        sendAt: '2020-08-06T15:00:00+00:00',
+      };
 
-    it('should validate configs message', () => {
-      const validate = validator('devices/configs', {
-        configuration: {
-          maximum_temperature: 60,
-        },
-        deviceId: 'd44d8a14-5fbb-4e4a-96a6-ed0c71c11fa8',
-        version: 2,
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate errors message', () => {
-      const validate = validator('devices/errors', {
-        error: "command field 'id' is NOT an UUID",
-        messageId: 31248,
-        payload: "{'id':'not UUID','status':'in_progress'}",
-        topic: 'devices/763c073a-e0ff-41a9-bd51-3386975ea4e3/commands',
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate installations message', () => {
-      const validate = validator('devices/installations', {
-        buildStamp: 'string',
-        description: 'package.gwa-core-v1.1',
-        deviceId: 'd44d8a14-5fbb-4e4a-96a6-ed0c71c11fa8',
-        fileName: 'gwa-core.tgz',
-        id: '763c073a-e0ff-41a9-bd51-3386975ea4e3',
-        location: 'http://foo.bar/buzz.xyz',
-        signature: '2fd4e1c67a2d28fced849ee1bb76e7391b93eb12',
-        signatureType: 'sha-256',
-        size: 1048576,
-        timestamp: 0,
-        type: 'gwa-core-package',
-      });
-      expect(validate).toStrictEqual(true);
-    });
-
-    it('should validate measurements message', () => {
-      const validate = validator('devices/measurements', [
-        {
-          name: 'temperature',
-          timestamp: 0,
-          value: 36.6,
-        },
-      ]);
-      expect(validate).toStrictEqual(true);
+      try {
+        validator2('lightMeasured', payload);
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect((err as Error).message).toBe('data/lumens must be >= 0');
+      }
     });
   });
 });

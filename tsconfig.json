@@ -1,3 +1,16 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json"
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationDir": "dist/types",
+  },
+  "include": [
+    "src/"
+  ],
+  "exclude": [
+    "**/tests/",
+    "**/*.test.ts"
+  ]
 }
