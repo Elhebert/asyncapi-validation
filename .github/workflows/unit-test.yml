@@ -25,4 +25,5 @@ jobs:
         with:
           node-version: 20.3
           cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - run: pnpm test
