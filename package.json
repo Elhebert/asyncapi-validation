@@ -11,6 +11,8 @@
     "url": "https://github.com/Elhebert/asyncapi-validation/issues"
   },
   "scripts": {
+    "prepare": "husky install",
+    "preinstall": "npx only-allow pnpm",
     "test": "jest",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
