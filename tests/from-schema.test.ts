@@ -174,4 +174,48 @@ describe('parsing `fromSchema`', () => {
       expect((err as Error).message).toBe('data/lumens must be >= 0');
     }
   });
+
+  it('throw an error if the message key is not found for a 3.0.0 schema', async () => {
+    const schema = await readFile(
+      path.join(__dirname, 'fixtures', 'valid-schema-3.0.0.yaml'),
+      'utf-8'
+    );
+    const validator = await asyncApiValidation.fromSchema(schema);
+
+    const payload = {
+      lumens: 10,
+      sendAt: '2020-08-06T15:00:00+00:00',
+    };
+
+    try {
+      validator('wrong-key', payload);
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message).toBe(
+        'No messages found for the given key'
+      );
+    }
+  });
+
+  it('throw an error if the message key is not found for a 2.0.0 schema', async () => {
+    const schema = await readFile(
+      path.join(__dirname, 'fixtures', 'valid-schema-2.0.0.yaml'),
+      'utf-8'
+    );
+    const validator = await asyncApiValidation.fromSchema(schema);
+
+    const payload = {
+      lumens: 10,
+      sendAt: '2020-08-06T15:00:00+00:00',
+    };
+
+    try {
+      validator('wrong-key', payload);
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message).toBe(
+        'No messages found for the given key'
+      );
+    }
+  });
 });
