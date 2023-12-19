@@ -1,66 +1,6 @@
-import {
-  type Input,
-  type ParseOutput,
-  fromFile,
-  fromURL,
-  Parser,
-} from '@asyncapi/parser';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
-import AsyncAPIValidationError from './AsyncAPIValidationError';
+import { type Input, fromFile, fromURL, Parser } from '@asyncapi/parser';
 import AsyncAPIParsingError from './AsyncAPIParsingError';
-
-export type ValidationFunction = (key: string, payload: unknown) => boolean;
-
-/**
- * Validates the provided AsyncAPI schema and returns a validation function.
- *
- * @param {ParseOutput} schema - The parsed AsyncAPI schema.
- *
- * @returns {ValidationFunction} The validation function.
- */
-function validate(schema: ParseOutput): ValidationFunction {
-  const ajv = new Ajv({ allErrors: true, strict: false, unicodeRegExp: false });
-  addFormats(ajv);
-
-  /**
-   * Validates the provided payload against the AsyncAPI schema.
-   *
-   * @param {string} key - The key of the message to validate.
-   * @param {unknown} payload - The payload to validate.
-   * @returns {boolean} true if the payload is valid.
-   *
-   * @throws {Error} if no messages are found for the given key.
-   * @throws {AsyncAPIValidationError} if the payload fails validation.
-   */
-  const validatorFunction = (key: string, payload: unknown): boolean => {
-    const message = schema.document
-      ?.components()
-      .messages()
-      .find((m) => {
-        return m.id() === key || m.name() === key;
-      });
-
-    if (!message) {
-      throw new Error('No messages found for the given key');
-    }
-
-    const validator = ajv.compile(message.payload()?.json() || {});
-    const validationResult = validator(payload);
-
-    if (!validationResult) {
-      throw new AsyncAPIValidationError(
-        ajv.errorsText(validator.errors),
-        key,
-        validator.errors
-      );
-    }
-
-    return true;
-  };
-
-  return validatorFunction;
-}
+import validate, { type ValidationFunction } from './validate';
 
 const parser = new Parser({ ruleset: { core: true, recommended: false } });
 
@@ -84,9 +24,9 @@ export default {
       return validate(schema);
     }
 
-    if (schema.diagnostics[0].code === 'uncaught exception') {
+    if (schema.diagnostics[0].code === 'uncaught-error') {
       throw new AsyncAPIParsingError(
-        'Your schema is not valid.',
+        'Your schema is not an AsyncAPI schema.',
         schema.diagnostics
       );
     }
@@ -116,9 +56,9 @@ export default {
       return validate(schema);
     }
 
-    if (schema.diagnostics[0].code === 'uncaught exception') {
+    if (schema.diagnostics[0].code === 'uncaught-error') {
       throw new AsyncAPIParsingError(
-        'Your schema is not valid.',
+        'Your schema is not an AsyncAPI schema.',
         schema.diagnostics
       );
     }
@@ -148,9 +88,9 @@ export default {
       return validate(parsedSchema);
     }
 
-    if (parsedSchema.diagnostics[0].code === 'uncaught exception') {
+    if (parsedSchema.diagnostics[0].code === 'uncaught-error') {
       throw new AsyncAPIParsingError(
-        'Your schema is not valid.',
+        'Your schema is not an AsyncAPI schema.',
         parsedSchema.diagnostics
       );
     }
