@@ -6,7 +6,11 @@
 
 Message validation package for YAML and JSON AsyncAPI documents.
 
-This package is compatible with AsyncAPI documents v2.x.x and v3.0.0.
+This package:
+
+- Load and parse your AsyncAPI documents from a file, an url or an in-line schema
+- Support AsyncAPI documents v2.x.x and v3.x.x
+- Support both YAML and JSON documents
 
 ## Installation
 
@@ -21,92 +25,166 @@ pnpm install asyncapi-validation
 
 ## Usage
 
-### Using a remote schema
+### Parsing Functions
 
-```ts
-import asyncAPIValidation from 'asyncapi-validation';
+<dl>
+<dt><a href="#fromFile">fromFile(path)</a> ⇒ <code>Promise.&lt;ValidationFunction&gt;</code></dt>
+<dd><p>Parses an AsyncAPI schema from a file and returns a validation function.</p>
+</dd>
+<dt><a href="#fromUrl">fromUrl(url)</a> ⇒ <code>Promise.&lt;ValidationFunction&gt;</code></dt>
+<dd><p>Parses an AsyncAPI schema from a URL and returns a validation function.</p>
+</dd>
+<dt><a href="#fromSchema">fromSchema(schema)</a> ⇒ <code>Promise.&lt;ValidationFunction&gt;</code></dt>
+<dd><p>Parses an AsyncAPI schema from a string and returns a validation function.</p>
+</dd>
+</dl>
 
-const validator = await asyncAPIValidation.fromUrl(
+<a name="fromFile"></a>
+
+#### fromFile(path) ⇒ <code>Promise.&lt;ValidationFunction&gt;</code>
+
+Parses an AsyncAPI schema from a file and returns a validation function.
+
+**Kind**: global function
+**Returns**: <code>Promise.&lt;ValidationFunction&gt;</code> - A promise that resolves to the validation function.
+**Throws**:
+
+- <code>AsyncAPIParsingError</code> if the schema is not valid or has governance issues.
+
+| Param | Type                | Description                           |
+| ----- | ------------------- | ------------------------------------- |
+| path  | <code>string</code> | The path to the AsyncAPI schema file. |
+
+**Example**
+
+```js
+const validator = await asyncApiValidation.parseFromFile('path/to/schema.yaml');
+validator('messageKey', { foo: 'bar' });
+```
+
+<a name="fromUrl"></a>
+
+#### fromUrl(url) ⇒ <code>Promise.&lt;ValidationFunction&gt;</code>
+
+Parses an AsyncAPI schema from a URL and returns a validation function.
+
+**Kind**: global function
+**Returns**: <code>Promise.&lt;ValidationFunction&gt;</code> - A promise that resolves to the validation function.
+**Throws**:
+
+- <code>AsyncAPIParsingError</code> if the schema is not valid or has governance issues.
+
+| Param | Type                | Description                     |
+| ----- | ------------------- | ------------------------------- |
+| url   | <code>string</code> | The URL of the AsyncAPI schema. |
+
+**Example**
+
+```js
+const validator = await asyncApiValidation.fromUrl(
   'https://example.org/schema.yaml'
 );
-validator('messageName', { foo: 'bar' });
-validator('messageId', { foo: 'bar' });
+validator('messageKey', { foo: 'bar' });
 ```
 
-# Using a local schema
+<a name="fromSchema"></a>
 
-```ts
-const validator = await asyncAPIValidation.fromUrl('./schema.yaml');
-validator('messageName', { foo: 'bar' });
-validator('messageId', { foo: 'bar' });
+#### fromSchema(schema) ⇒ <code>Promise.&lt;ValidationFunction&gt;</code>
+
+Parses an AsyncAPI schema from a string and returns a validation function.
+
+**Kind**: global function
+**Returns**: <code>Promise.&lt;ValidationFunction&gt;</code> - A promise that resolves to the validation function.
+**Throws**:
+
+- <code>AsyncAPIParsingError</code> if the schema is not valid or has governance issues.
+
+| Param  | Type                | Description                      |
+| ------ | ------------------- | -------------------------------- |
+| schema | <code>string</code> | The AsyncAPI schema as a string. |
+
+**Example**
+
+```js
+const validator = await asyncApiValidation.fromSchema('asyncapi: 2.0.0');
+validator('messageKey', { foo: 'bar' });
 ```
 
-# Using an in-line schema
+### Validator Function
 
-```ts
-const validator = await asyncAPIValidation.fromSchema(`asyncapi: 3.0.0
-info:
-  title: Account Service
-  version: 1.0.0
-  description: This service is in charge of processing user signups
-channels:
-  userSignedup:
-    address: user/signedup
-    messages:
-      UserSignedUp:
-        $ref: '#/components/messages/UserSignedUp'
-operations:
-  sendUserSignedup:
-    action: send
-    channel:
-      $ref: '#/channels/userSignedup'
-    messages:
-      - $ref: '#/channels/userSignedup/messages/UserSignedUp'
-components:
-  messages:
-    UserSignedUp:
-      payload:
-        type: object
-        properties:
-          displayName:
-            type: string
-            description: Name of the user
-          email:
-            type: string
-            format: email
-            description: Email of the user
-`);
-validator('messageName', { foo: 'bar' });
-validator('messageId', { foo: 'bar' });
+<a name="validate"></a>
+
+#### validate(schema) ⇒ <code>ValidationFunction</code>
+
+Validates the provided AsyncAPI schema and returns a validation function.
+
+**Kind**: global function
+**Returns**: <code>ValidationFunction</code> - The validation function.
+
+| Param  | Type                     | Description                 |
+| ------ | ------------------------ | --------------------------- |
+| schema | <code>ParseOutput</code> | The parsed AsyncAPI schema. |
+
+<a name="validate..validatorFunction"></a>
+
+##### validate~validatorFunction(key, payload) ⇒ <code>boolean</code>
+
+Validates the provided payload against the AsyncAPI schema.
+
+**Kind**: inner method of [<code>validate</code>](#validate)
+**Returns**: <code>boolean</code> - true if the payload is valid.
+**Throws**:
+
+- <code>Error</code> if no messages are found for the given key.
+- <code>AsyncAPIValidationError</code> if the payload fails validation.
+
+| Param   | Type                 | Description                         |
+| ------- | -------------------- | ----------------------------------- |
+| key     | <code>string</code>  | The key of the message to validate. |
+| payload | <code>unknown</code> | The payload to validate.            |
+
+**Example**
+
+```js
+const validator = await asyncApiValidation.fromSchema('asyncapi: 2.0.0');
+validator('messageKey', { foo: 'bar' });
 ```
 
-## Contributing
+### Errors
 
-### Tests
+<a name="AsyncAPIParsingError"></a>
 
-The test suite can be run using pnpm scripts:
+#### AsyncAPIParsingError
 
-```bash
-pnpm test
-```
+Represents an error that occurs during the parsing of an AsyncAPI document.
 
-Tests can be found in the (tests)[./tests] folder.
+**Kind**: global class
+<a name="new_AsyncAPIParsingError_new"></a>
 
-### Linting
+##### new AsyncAPIParsingError(message, [errors])
 
-The following pnpm script can be used to find out about the possible linting errors:
+Represents an error that occurs during the parsing of an AsyncAPI document.
 
-```bash
-pnpm lint
-```
+| Param    | Type                                  | Description                                                            |
+| -------- | ------------------------------------- | ---------------------------------------------------------------------- |
+| message  | <code>string</code>                   | The error message.                                                     |
+| [errors] | <code>Array.&lt;Diagnostic&gt;</code> | Optional array of diagnostic errors associated with the parsing error. |
 
-### Linting error prevention
+<a name="AsyncAPIValidationError"></a>
 
-[Husky](https://github.com/typicode/husky) and [lint-staged](https://github.com/okonet/lint-staged) are set up to check staged files for linting issues. When new changes are commited all the updated files will be checked. If the linting fails for one of them the operation will be cancelled.
+#### AsyncAPIValidationError
 
-## Built with
+Represents an error that occurs during AsyncAPI validation.
 
-- [NodeJs](https://nodejs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [AsyncAPI parser](https://www.asyncapi.com/tools/parsers)
-- [Ajv js](https://ajv.js.org/)
+**Kind**: global class
+<a name="new_AsyncAPIValidationError_new"></a>
+
+##### new AsyncAPIValidationError(message, key, [errors])
+
+Represents an error that occurs during AsyncAPI validation.
+
+| Param    | Type                                                        | Description                            |
+| -------- | ----------------------------------------------------------- | -------------------------------------- |
+| message  | <code>string</code>                                         | The error message.                     |
+| key      | <code>string</code>                                         | The key associated with the error.     |
+| [errors] | <code>Array.&lt;ErrorObject&gt;</code> \| <code>null</code> | The array of validation error objects. |
