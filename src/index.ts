@@ -1,7 +1,7 @@
 import { type Input, fromFile, fromURL, Parser } from '@asyncapi/parser';
+import openAPISchemaParser from '@asyncapi/openapi-schema-parser';
 import AsyncAPIParsingError from './AsyncAPIParsingError';
 import validate, { type ValidationFunction } from './validate';
-import openAPISchemaParser from '@asyncapi/openapi-schema-parser';
 
 const parser = new Parser({
   ruleset: { core: true, recommended: false },
