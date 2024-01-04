@@ -218,4 +218,32 @@ describe('parsing `fromSchema`', () => {
       );
     }
   });
+
+  it('validate an openapi schema inside a valid Async API 3.0.0 schema', async () => {
+    const schema = await readFile(
+      path.join(__dirname, 'fixtures', 'valid-schema-openapi-3.0.0.yaml'),
+      'utf-8'
+    );
+    const validator = await asyncApiValidation.fromSchema(schema);
+
+    const payload = {
+      name: 'Fran',
+    };
+
+    expect(validator('testMessage', payload)).toBe(true);
+  });
+
+  it('validate an openapi schema inside a valid Async API 2.4.0 schema', async () => {
+    const schema = await readFile(
+      path.join(__dirname, 'fixtures', 'valid-schema-openapi-2.4.0.yaml'),
+      'utf-8'
+    );
+    const validator = await asyncApiValidation.fromSchema(schema);
+
+    const payload = {
+      name: 'Fran',
+    };
+
+    expect(validator('testMessage', payload)).toBe(true);
+  });
 });

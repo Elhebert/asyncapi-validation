@@ -204,4 +204,28 @@ describe('parsing `fromFile`', () => {
       );
     }
   });
+
+  it('validate an openapi schema inside a valid Async API 3.0.0 schema', async () => {
+    const validator = await asyncApiValidation.fromFile(
+      path.join(__dirname, 'fixtures', 'valid-schema-openapi-3.0.0.yaml')
+    );
+
+    const payload = {
+      name: 'Fran',
+    };
+
+    expect(validator('testMessage', payload)).toBe(true);
+  });
+
+  it('validate an openapi schema inside a valid Async API 2.4.0 schema', async () => {
+    const validator = await asyncApiValidation.fromFile(
+      path.join(__dirname, 'fixtures', 'valid-schema-openapi-2.4.0.yaml')
+    );
+
+    const payload = {
+      name: 'Fran',
+    };
+
+    expect(validator('testMessage', payload)).toBe(true);
+  });
 });
